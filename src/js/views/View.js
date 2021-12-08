@@ -1,13 +1,17 @@
 const icons = new URL('../../img/icons.svg', import.meta.url);
 export default class View {
   _data;
-  render(data) {
+  render(data, render = true) {
     if (!data || (Array.isArray(data) && data.length === 0)) {
       this.renderError();
       return;
     }
     this._data = data;
-    const markup = this._generateMarkup();
+
+    const markup = this._generateMarkup(this._data);
+
+    if (!render) return markup;
+
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
@@ -15,6 +19,7 @@ export default class View {
   update(data) {
     this._data = data;
     const newMarkup = this._generateMarkup();
+
     // converting string to virtual DOM
     const newDOM = document.createRange().createContextualFragment(newMarkup);
     const newElements = Array.from(newDOM.querySelectorAll('*'));
@@ -34,9 +39,10 @@ export default class View {
       //return;
       const curEl = curElements[i];
       //console.log(newEl.isEqualNode(curEl), newEl);
+
       if (
         !newEl.isEqualNode(curEl) &&
-        newEl.firstChild.nodeValue.trim() !== ''
+        newEl?.firstChild?.nodeValue.trim() !== ''
       ) {
         //console.log('=>', newEl);
         curEl.textContent = newEl.textContent;

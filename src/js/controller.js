@@ -3,6 +3,7 @@ import recipeView from './views/recipeView.js'; // u can give this any name
 import SearchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
+import bookmarksView from './views/bookmarksView.js';
 /*
 What is the difference between Polyfilling and Transpiling?
 
@@ -41,6 +42,7 @@ const controlRecipes = async function () {
 
     // 0  update results view to mark selected search result
     resultsView.update(model.getSearchResultPage());
+    bookmarksView.update(model.state.bookmarks);
     // 1) loading recipe
     // this function returns promise , so we should wait for it
     await model.loadRecipe(id);
@@ -84,9 +86,21 @@ const controlServings = function (newServing) {
   recipeView.update(model.state.recipe);
 };
 
+const constrolAddBookmark = function () {
+  if (!model.state.recipe.bookmarked) {
+    model.addBookmark(model.state.recipe);
+  } else {
+    model.deleteBookmark(model.state.recipe.id);
+  }
+  // view view
+  recipeView.update(model.state.recipe);
+  bookmarksView.render(model.state.bookmarks);
+};
+
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(constrolAddBookmark);
   SearchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 };
